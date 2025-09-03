@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JogosApplication", "JogosAp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JogosRepository", "JogosRepository\JogosRepository.csproj", "{02CFDE67-F5C1-4822-BEC8-44A5EA6583DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JogosAPI", "JogosAPI\JogosAPI.csproj", "{639D6108-E543-49D3-89C2-A21EDF10897D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jogos,ApiService", "JogosAPI\Jogos,ApiService.csproj", "{639D6108-E543-49D3-89C2-A21EDF10897D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
