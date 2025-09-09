@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -14,7 +14,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\JogosApplication\Jogos.Service.Application.csproj" />
     <ProjectReference Include="..\JogosApplication\JogosApplication.csproj" />
+    <ProjectReference Include="..\JogosDomain\Jogos.Service.Domain.csproj" />
+    <ProjectReference Include="..\JogosRepository\Jogos.Service.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

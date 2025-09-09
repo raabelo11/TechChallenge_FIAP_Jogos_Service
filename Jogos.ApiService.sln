@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JogosDomain", "JogosDomain\JogosDomain.csproj", "{7810B490-CC0D-4530-B5F6-B9ECEB09B458}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jogos.Service.Domain", "JogosDomain\Jogos.Service.Domain.csproj", "{7810B490-CC0D-4530-B5F6-B9ECEB09B458}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JogosApplication", "JogosApplication\JogosApplication.csproj", "{A44DE67D-BA02-4996-AD73-B6234A95D65B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jogos.Service.Application", "JogosApplication\Jogos.Service.Application.csproj", "{A44DE67D-BA02-4996-AD73-B6234A95D65B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JogosRepository", "JogosRepository\JogosRepository.csproj", "{02CFDE67-F5C1-4822-BEC8-44A5EA6583DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jogos.Service.Infrastructure", "JogosRepository\Jogos.Service.Infrastructure.csproj", "{02CFDE67-F5C1-4822-BEC8-44A5EA6583DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jogos,ApiService", "JogosAPI\Jogos,ApiService.csproj", "{639D6108-E543-49D3-89C2-A21EDF10897D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jogos.ApiService", "JogosAPI\Jogos.ApiService.csproj", "{639D6108-E543-49D3-89C2-A21EDF10897D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
