@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Jogos.Service.Domain.EntityTipeConfiguration;
 using Jogos.Service.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,7 +15,12 @@ namespace Jogos.Service.Infrastructure.Context
         {
             
         }
+        public DbSet<Jogo> Jogos { get; set; }
 
-        public DbSet<Jogo> jogos { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            new JogosEntityTipeConfiguration().Configure(modelBuilder.Entity<Jogo>());
+        }
+
     }
 }

@@ -5,25 +5,26 @@ using System.Text;
 using System.Threading.Tasks;
 using Jogos.Service.Application.Dtos;
 using Jogos.Service.Application.Interface;
+using Jogos.Service.Domain.Interface;
+using Jogos.Service.Domain.Models;
 
 namespace Jogos.Service.Application.JogosUseCase
 {
-    public class JogosUseCase : IuseCaseJogos
+    public class useCaseJogos : IuseCaseJogos
     {
-        private IuseCaseJogos _useCaseJogos;
-
-        public JogosUseCase(IuseCaseJogos jogos)
+        private readonly IJogos _jogos;
+        public useCaseJogos(IJogos jogos)
         {
-            _useCaseJogos = jogos;
+            _jogos = jogos;
         }
         public JogosResponse Create(JogosRequest request)
         {
             throw new NotImplementedException();
         }
 
-        public JogosResponse GetAllJogos()
+        public List<Jogo> GetAllJogos()
         {
-            throw new NotImplementedException();
+            return _jogos.Listar();
         }
     }
 }

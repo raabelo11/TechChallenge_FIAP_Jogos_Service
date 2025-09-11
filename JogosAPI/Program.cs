@@ -1,7 +1,4 @@
-using Jogos.Service.Application.Interface;
-using Jogos.Service.Application.JogosUseCase;
-using Jogos.Service.Domain.Interface;
-using Jogos.Service.Infrastructure;
+using Jogos.Service.Application.Configurations;
 using Jogos.Service.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,8 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<JogosDao,JogosRepository>();
-builder.Services.AddScoped<IuseCaseJogos, JogosUseCase>();
+builder.Services.AddApplication();
 
 
 var app = builder.Build();

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jogos.Service.Infrastructure
 {
-    public class JogosRepository : JogosDao
+    public class JogosRepository : IJogos
     {
         private readonly ApplicationDbContext _context;
 
@@ -26,7 +26,7 @@ namespace Jogos.Service.Infrastructure
 
         public List<Jogo> Listar()
         {
-            return _context.jogos.ToList();
+            return _context.Jogos.ToList();
         }
     }
 }
