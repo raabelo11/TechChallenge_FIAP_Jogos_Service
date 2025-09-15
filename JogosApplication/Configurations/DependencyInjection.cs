@@ -1,10 +1,13 @@
 ﻿
+using System.Reflection;
 using System.Threading.Tasks;
 using Jogos.Service.Application.Interface;
 using Jogos.Service.Application.JogosUseCase;
+using Jogos.Service.Application.Mappings;
 using Jogos.Service.Domain.Interface;
 using Jogos.Service.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+
 
 namespace Jogos.Service.Application.Configurations
 {
@@ -15,8 +18,7 @@ namespace Jogos.Service.Application.Configurations
             // Adicione aqui os serviços da camada de aplicação
             
             services.AddScoped<IuseCaseJogos, useCaseJogos>();
-            services.AddScoped<IJogos, JogosRepository>();
-
+            services.AddScoped<IJogosRepository, JogosRepository>();
         }
     }
 }

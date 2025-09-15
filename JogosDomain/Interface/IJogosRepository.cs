@@ -7,10 +7,11 @@ using Jogos.Service.Domain.Models;
 
 namespace Jogos.Service.Domain.Interface
 {
-    public interface IJogos
+    public interface IJogosRepository
     {
-        bool Adicionar(Jogo jogo);
         List<Jogo> Listar();
+        bool Adicionar(Jogo jogo);
+        bool Atualizar(Jogo jogo);
 
     }
 }

@@ -10,7 +10,11 @@ namespace Jogos.Service.Application.Interface
 {
     public interface IuseCaseJogos
     {
-        List<Jogo> GetAllJogos();
-        JogosResponse Create(JogosRequest request);
+        JogosResponse listarJogos();
+        JogosResponse Create(JogoDto request);
+        JogosResponse Update(JogoRequest request);
+        JogosResponse listarCategorias();
+        JogosResponse listarEstudios();
+
     }
 }

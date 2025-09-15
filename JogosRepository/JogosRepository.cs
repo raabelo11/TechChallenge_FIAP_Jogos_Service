@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Jogos.Service.Infrastructure
 {
-    public class JogosRepository : IJogos
+    public class JogosRepository : IJogosRepository
     {
         private readonly ApplicationDbContext _context;
 
@@ -21,6 +21,13 @@ namespace Jogos.Service.Infrastructure
         public bool Adicionar(Jogo jogo)
         {
             _context.Add(jogo);
+            return _context.SaveChanges() > 0;
+        }
+
+        public bool Atualizar(Jogo jogo)
+        {
+            var game = _context.Find<Jogo>(jogo.Id);
+            _context.Entry(game).CurrentValues.SetValues(jogo);
             return _context.SaveChanges() > 0;
         }
 

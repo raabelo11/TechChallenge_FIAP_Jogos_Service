@@ -12,7 +12,7 @@ namespace Jogos.Service.Domain.EntityTipeConfiguration
         {
             builder.ToTable("Jogos");
             builder.HasKey(j => j.Id);
-            builder.Property(j => j.Id).HasColumnName("PK_Jogos");
+            builder.Property(j => j.Id).HasColumnName("PK_Jogos").ValueGeneratedOnAdd().UseIdentityColumn();
             builder.Property(j => j.Nome).IsRequired().HasMaxLength(100).HasColumnName("Nome_Jogo");
             builder.Property(j => j.Descricao).IsRequired().HasMaxLength(200).HasColumnName("Descricao_Jogo");
             builder.Property(j => j.Valor).IsRequired().HasColumnName("Valor_Jogo").HasColumnType("decimal");

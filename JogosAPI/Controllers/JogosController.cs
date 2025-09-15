@@ -1,4 +1,5 @@
-﻿using Jogos.Service.Application.Interface;
+﻿using Jogos.Service.Application.Dtos;
+using Jogos.Service.Application.Interface;
 using Jogos.Service.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,28 +19,38 @@ namespace Jogos.ApiService.Controllers
         }
         // GET: api/<JogosController>
         [HttpGet]
-        public List<Jogo> Get()
+        [Route("ListarJogos")]
+        public async Task <JogosResponse> Get()
         {
-            return _useCaseJogos.GetAllJogos();
+            return _useCaseJogos.listarJogos();
         }
-
-        // GET api/<JogosController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet]
+        [Route("ListarCategorias")]
+        public async Task<JogosResponse> GetCategorias()
         {
-            return "value";
+            return _useCaseJogos.listarCategorias();
         }
-
-        // POST api/<JogosController>
+        [HttpGet]
+        [Route("ListarEstudios")]
+        public async Task<JogosResponse> GetEstudios()
+        {
+            return _useCaseJogos.listarEstudios();
+        }
+        [Route("CadastrarJogos")]
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult<JogosResponse> Post([FromBody] JogoDto jogoDto)
         {
+           var jogoCriado = _useCaseJogos.Create(jogoDto);
+            return jogoCriado.Ok ? Ok(jogoCriado) : BadRequest(jogoCriado);
         }
 
         // PUT api/<JogosController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [Route("AtualizarJogos")]
+        [HttpPatch]
+        public ActionResult<JogosResponse> Patch([FromBody] JogoRequest jogo)
         {
+            var jogoAtualizado = _useCaseJogos.Update(jogo);
+            return jogoAtualizado.Ok ? Ok(jogoAtualizado) : BadRequest(jogoAtualizado);
         }
 
         // DELETE api/<JogosController>/5
