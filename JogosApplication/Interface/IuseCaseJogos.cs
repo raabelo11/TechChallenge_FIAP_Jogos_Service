@@ -15,6 +15,5 @@ namespace Jogos.Service.Application.Interface
         JogosResponse Update(JogoRequest request);
         JogosResponse listarCategorias();
         JogosResponse listarEstudios();
-
     }
 }

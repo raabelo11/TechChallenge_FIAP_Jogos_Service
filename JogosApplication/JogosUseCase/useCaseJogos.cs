@@ -1,19 +1,25 @@
-﻿using AutoMapper;
+﻿using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
+using AutoMapper;
 using Jogos.Service.Application.Dtos;
 using Jogos.Service.Application.Interface;
+using Jogos.Service.Application.Utils;
 using Jogos.Service.Domain.Enums;
 using Jogos.Service.Domain.Interface;
 using Jogos.Service.Domain.Models;
+using Jogos.Service.Infrastructure.Repository;
 using Microsoft.Extensions.Logging;
 
 namespace Jogos.Service.Application.JogosUseCase
 {
     public class useCaseJogos : IuseCaseJogos
     {
-        private readonly IJogosRepository _jogos;
+        private readonly IJogo _jogos;
         private readonly IMapper _mapper;
         private readonly ILogger<useCaseJogos> _logger;
-        public useCaseJogos(IJogosRepository jogos, IMapper mapper, ILogger<useCaseJogos> logger)
+        public useCaseJogos(IJogo jogos, IMapper mapper, ILogger<useCaseJogos> logger)
         {
             _jogos = jogos;
             _mapper = mapper;
@@ -148,6 +154,5 @@ namespace Jogos.Service.Application.JogosUseCase
             }
             return listaEstudios;
         }
-
     }
 }

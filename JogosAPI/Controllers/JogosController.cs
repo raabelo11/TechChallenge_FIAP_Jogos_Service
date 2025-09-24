@@ -52,11 +52,5 @@ namespace Jogos.ApiService.Controllers
             var jogoAtualizado = _useCaseJogos.Update(jogo);
             return jogoAtualizado.Ok ? Ok(jogoAtualizado) : BadRequest(jogoAtualizado);
         }
-
-        // DELETE api/<JogosController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }
