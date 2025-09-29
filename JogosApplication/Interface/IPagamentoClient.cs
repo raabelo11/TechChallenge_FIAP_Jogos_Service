@@ -8,12 +8,8 @@ using Jogos.Service.Domain.Models;
 
 namespace Jogos.Service.Application.Interface
 {
-    public interface IuseCaseJogos
+    public interface IPagamentoClient
     {
-        JogosResponse listarJogos();
-        JogosResponse Create(JogoDto request);
-        JogosResponse Update(JogoRequest request);
-        JogosResponse listarCategorias();
-        JogosResponse listarEstudios();
+        Task<JogosResponse> IncluirJogo(PedidoJogo jogo);
     }
 }

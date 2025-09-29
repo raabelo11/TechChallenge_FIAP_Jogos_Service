@@ -7,11 +7,11 @@ using Jogos.Service.Domain.Models;
 
 namespace Jogos.Service.Domain.Interface
 {
-    public interface IJogosRepository
+    public interface IRepositoryGeneric<TEntity> where TEntity : class
     {
-        List<Jogo> Listar();
-        bool Adicionar(Jogo jogo);
-        bool Atualizar(Jogo jogo);
+        List<TEntity> Listar();
+        bool Adicionar(TEntity jogo);
+        bool Atualizar(TEntity jogo);
 
     }
 }

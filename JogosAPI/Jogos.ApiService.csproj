@@ -11,11 +11,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\JogosApplication\Jogos.Service.Application.csproj" />
-    <ProjectReference Include="..\JogosApplication\JogosApplication.csproj" />
     <ProjectReference Include="..\JogosDomain\Jogos.Service.Domain.csproj" />
     <ProjectReference Include="..\JogosRepository\Jogos.Service.Infrastructure.csproj" />
   </ItemGroup>

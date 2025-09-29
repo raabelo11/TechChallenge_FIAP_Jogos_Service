@@ -22,6 +22,8 @@ namespace Jogos.ApiService.Controllers
         [Route("ListarJogos")]
         public async Task <JogosResponse> Get()
         {
+            var header = HttpContext.Items["UserId"];
+            ; // Apenas para evitar o warning de variável não utilizada
             return _useCaseJogos.listarJogos();
         }
         [HttpGet]
@@ -51,12 +53,6 @@ namespace Jogos.ApiService.Controllers
         {
             var jogoAtualizado = _useCaseJogos.Update(jogo);
             return jogoAtualizado.Ok ? Ok(jogoAtualizado) : BadRequest(jogoAtualizado);
-        }
-
-        // DELETE api/<JogosController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
         }
     }
 }
