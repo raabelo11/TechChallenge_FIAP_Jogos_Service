@@ -6,21 +6,22 @@ using System.Threading.Tasks;
 using Jogos.Service.Domain.Interface;
 using Jogos.Service.Domain.Models;
 using Jogos.Service.Infrastructure.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jogos.Service.Infrastructure.Repository
 {
-    public class BibliotecaRepository(ApplicationDbContext dbContext) : IBiblioteca
+    public class BibliotecaRepository : RepositoryGeneric<Biblioteca>, IBiblioteca
     {
-        private readonly ApplicationDbContext _context = dbContext;
-        public bool Adicionar(Biblioteca biblioteca)
+        private readonly ApplicationDbContext _context;
+        public BibliotecaRepository(ApplicationDbContext applicationDbContext) : base(applicationDbContext)
         {
-            _context.Bibliotecas.Add(biblioteca);
-            return _context.SaveChanges() > 0;
+            _context = applicationDbContext;
         }
 
-        public List<Biblioteca> Listar(int id)
+        public async Task<ICollection<Jogo>> ListarBiblioteca(int idCliente)
         {
-            return _context.Bibliotecas.ToList().FindAll(x => x.IdCliente == id);
+            var biblioteca = await _context.Bibliotecas.Where(x => x.IdCliente.Equals(idCliente)).Select(j => j.Jogo).ToListAsync();
+            return biblioteca;
         }
     }
 }

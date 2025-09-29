@@ -17,6 +17,6 @@ namespace Jogos.Service.Domain.Models
         public Genero Genero { get; set; }
         public string Nome { get; set; }
         public string Descricao { get; set; }
-        public List<Biblioteca> Bibliotecas { get; set; } = new List<Biblioteca>();
+        public ICollection<Biblioteca>? Bibliotecas { get; set; }
     }
 }

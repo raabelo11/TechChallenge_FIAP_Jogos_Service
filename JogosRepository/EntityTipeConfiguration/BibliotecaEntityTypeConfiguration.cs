@@ -14,9 +14,10 @@ namespace Jogos.Service.Infrastructure.EntityTipeConfiguration
         public void Configure(EntityTypeBuilder<Biblioteca> builder)
         {
             builder.ToTable("Biblioteca");
-            builder.Property(b => b.jogos).HasColumnName("Id_Jogos");
+            builder.HasKey(e => new { e.IdCliente, e.IdJogo });
+            builder.Property(b => b.IdJogo).HasColumnName("Id_Jogo");
             builder.Property(b => b.IdCliente).HasColumnName("Id_Cliente");
-            builder.HasMany(b => b.jogos).WithMany(j => j.Bibliotecas).UsingEntity(jt => jt.ToTable("Jogos"));
+            builder.HasOne(b => b.Jogo).WithMany(j => j.Bibliotecas).HasForeignKey(b => b.IdJogo);
         }
     }
 }

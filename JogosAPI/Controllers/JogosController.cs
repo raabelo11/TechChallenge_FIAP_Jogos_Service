@@ -22,6 +22,8 @@ namespace Jogos.ApiService.Controllers
         [Route("ListarJogos")]
         public async Task <JogosResponse> Get()
         {
+            var header = HttpContext.Items["UserId"];
+            ; // Apenas para evitar o warning de variável não utilizada
             return _useCaseJogos.listarJogos();
         }
         [HttpGet]

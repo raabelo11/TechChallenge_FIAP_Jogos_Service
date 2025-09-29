@@ -7,9 +7,8 @@ using Jogos.Service.Domain.Models;
 
 namespace Jogos.Service.Domain.Interface
 {
-    public interface IBiblioteca
+    public interface IBiblioteca : IRepositoryGeneric<Biblioteca>
     {
-        bool Adicionar(Biblioteca biblioteca);
-        List<Biblioteca> Listar(int id);
+        Task<ICollection<Jogo>> ListarBiblioteca(int idCliente);
     }
 }

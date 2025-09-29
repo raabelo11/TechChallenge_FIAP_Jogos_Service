@@ -24,6 +24,7 @@ namespace Jogos.Service.Infrastructure.Context
         {
             new JogosEntityTipeConfiguration().Configure(modelBuilder.Entity<Jogo>());
             new PedidoJogoEntitytypeConfiguration().Configure(modelBuilder.Entity<PedidoJogo>());
+            new BibliotecaEntityTypeConfiguration().Configure(modelBuilder.Entity<Biblioteca>());
         }
 
     }

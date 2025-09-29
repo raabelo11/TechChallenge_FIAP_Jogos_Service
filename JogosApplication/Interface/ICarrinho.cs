@@ -7,9 +7,10 @@ using Jogos.Service.Application.Dtos;
 
 namespace Jogos.Service.Application.Interface
 {
-    public interface IClient
+    public interface ICarrinho
     {
         Task <JogosResponse>Processar(ProcessamentoRequest processamentoRequest);
-        Task<JogosResponse> Confirmar(int idCliente, int idJogo, int status);
+        Task<JogosResponse> Confirmar(ConfirmarPedidoDTO confirmarPedidoDTO);
+        Task<JogosResponse> ListarBiblioteca(int idCliente);
     }
 }
