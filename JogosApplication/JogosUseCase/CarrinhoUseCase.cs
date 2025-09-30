@@ -87,7 +87,8 @@ namespace Jogos.Service.Application.JogosUseCase
                 _logger.LogWarning("Hash ou status não localizado. HashPedido: {HashPedido}, Status: {Status}", confirmarPedidoDTO.HashPedido, confirmarPedidoDTO.status);
                 return new JogosResponse
                 {
-                    Errors = new string[] { "Hash ou status não localizado" }
+                    Errors = new string[] { "Hash ou status não localizado" },
+                    Ok = false
                 };
             }
             switch (confirmarPedidoDTO.status)
