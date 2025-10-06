@@ -1,6 +1,6 @@
 ﻿using Jogos.Service.Application.Dtos;
 using Jogos.Service.Application.Interface;
-using Microsoft.AspNetCore.Http;
+using Jogos.Service.Domain.Interface;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Jogos.ApiService.Controllers
@@ -43,6 +43,16 @@ namespace Jogos.ApiService.Controllers
                 id = userId;
 
             var listarBiblioteca = await _carrinho.ListarBiblioteca(id);
+            return listarBiblioteca.Ok ? Ok(listarBiblioteca.data) : BadRequest(listarBiblioteca.Errors);
+        }
+
+        [HttpGet("ListarIndicações")]
+        public async Task<ActionResult<bool>> ListarIndicações(int id)
+        {
+            if (HttpContext.Items.TryGetValue("UserId", out var userIdObj) && userIdObj is int userId)
+                id = userId;
+
+            var listarBiblioteca = await _carrinho.ListarJogosPorEstudioPreferido(id);
             return listarBiblioteca.Ok ? Ok(listarBiblioteca.data) : BadRequest(listarBiblioteca.Errors);
         }
     }

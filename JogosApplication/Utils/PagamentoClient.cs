@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text;
-using System.Threading.Tasks;
 using Jogos.Service.Application.Dtos;
 using Jogos.Service.Application.Interface;
-using Jogos.Service.Domain.Interface;
 using Jogos.Service.Domain.Models;
 
 namespace Jogos.Service.Application.Utils
