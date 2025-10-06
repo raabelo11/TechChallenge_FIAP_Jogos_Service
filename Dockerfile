@@ -7,13 +7,13 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Jogos.ApiService/Jogos.ApiService.csproj", "Jogos.ApiService/"]
-COPY ["Jogos.Service.Application/Jogos.Service.Application.csproj", "Jogos.Service.Application/"]
-COPY ["Jogos.Service.Domain/Jogos.Service.Domain.csproj", "Jogos.Service.Domain/"]
-COPY ["Jogos.Service.Infrastructure/Jogos.Service.Infrastructure.csproj", "Jogos.Service.Infrastructure/"]
-RUN dotnet restore "./Jogos.ApiService/Jogos.ApiService.csproj"
+COPY ["JogosAPI/Jogos.ApiService.csproj", "Jogos.ApiService/"]
+COPY ["JogosApplication/Jogos.Service.Application.csproj", "Jogos.Service.Application/"]
+COPY ["JogosDomain/Jogos.Service.Domain.csproj", "Jogos.Service.Domain/"]
+COPY ["JogosRepository/Jogos.Service.Infrastructure.csproj", "Jogos.Service.Infrastructure/"]
+RUN dotnet restore "./JogosAPI/Jogos.ApiService.csproj"
 COPY . .
-WORKDIR "/src/Jogos.ApiService"
+WORKDIR "/src/JogosAPI"
 RUN dotnet build "./Jogos.ApiService.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Esta fase é usada para publicar o projeto de serviço a ser copiado para a fase final
