@@ -11,7 +11,7 @@ COPY ["JogosAPI/Jogos.ApiService.csproj", "Jogos.ApiService/"]
 COPY ["JogosApplication/Jogos.Service.Application.csproj", "Jogos.Service.Application/"]
 COPY ["JogosDomain/Jogos.Service.Domain.csproj", "Jogos.Service.Domain/"]
 COPY ["JogosRepository/Jogos.Service.Infrastructure.csproj", "Jogos.Service.Infrastructure/"]
-RUN dotnet restore "./JogosAPI/Jogos.ApiService.csproj"
+RUN dotnet restore "./Jogos.ApiService/Jogos.ApiService.csproj"
 COPY . .
 WORKDIR "/src/JogosAPI"
 RUN dotnet build "./Jogos.ApiService.csproj" -c $BUILD_CONFIGURATION -o /app/build
