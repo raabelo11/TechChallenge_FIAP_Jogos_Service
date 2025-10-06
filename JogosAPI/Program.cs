@@ -12,10 +12,12 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+//Libera qualquer ip com a porta 8080 para AWS
+builder.WebHost.UseUrls("http://0.0.0.0:8080");
 
 builder.Services.Configure<ApiSettings>(builder.Configuration.GetSection("ApiSettings"));
 builder.Services.Configure<ElasticSettings>(builder.Configuration.GetSection("ElasticSettings"));
-// 1. Bind da configuração
+// 1. Bind da configuraÃ§Ã£o
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<BearerTokenHandler>();
@@ -32,17 +34,9 @@ builder.Logging.AddConsole();
 builder.Logging.AddProvider(new CustomerLoggerProvider(new CustomLoggerProviderConfiguration { LogLevel = LogLevel.Information }));
 var app = builder.Build();
 
-
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
 app.UseLogging();
 app.UseMiddleware<TokenMiddleware>();
