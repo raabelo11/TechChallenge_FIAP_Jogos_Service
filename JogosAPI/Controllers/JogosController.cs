@@ -23,7 +23,7 @@ namespace Jogos.ApiService.Controllers
         {
             return await _useCaseJogos.listarJogos();
         }
-        [HttpGet("Recomendações")]
+        [HttpGet("Recomendacoes")]
         public async Task<JogosResponse> GetRecomendacoes()
         {
             return await _useCaseJogos.ListarRecomendacoes();

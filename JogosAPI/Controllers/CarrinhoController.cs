@@ -46,7 +46,7 @@ namespace Jogos.ApiService.Controllers
             return listarBiblioteca.Ok ? Ok(listarBiblioteca.data) : BadRequest(listarBiblioteca.Errors);
         }
 
-        [HttpGet("ListarIndicações")]
+        [HttpGet("ListarIndicacoes")]
         public async Task<ActionResult<bool>> ListarIndicações(int id)
         {
             if (HttpContext.Items.TryGetValue("UserId", out var userIdObj) && userIdObj is int userId)
