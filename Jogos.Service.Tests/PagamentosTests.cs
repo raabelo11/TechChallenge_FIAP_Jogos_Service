@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using Jogos.Service.Application.Dtos;
 using Jogos.Service.Application.Interface;
 using Jogos.Service.Application.JogosUseCase;
 using Jogos.Service.Application.Utils;
 using Jogos.Service.Domain.Interface;
+using Jogos.Service.Domain.Models;
 using Jogos.Service.Infrastructure.Repository;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -29,10 +31,16 @@ namespace Jogos.Service.Tests
             var MockLog = new Mock<ILogger<CarrinhoUseCase>>();
             var mockRepo = new Mock<IJogo>();
             var MockServico = new Mock<ICarrinho>();
-            var MockBuceta = new Mock<ElasticClient>();
-            var Carrinho = new CarrinhoUseCase(mockPagamento.Object, mockIPedido.Object, mockRepo.Object, mockBiblioteca.Object, MockLog.Object, MockBuceta.Object);
+            var MockHttp = new Mock<HttpClient>();
+            HttpClient httpClient = new HttpClient();
+            ElasticClient elasticClient = new ElasticClient(httpClient);
+            var MockElastic = new Mock<ElasticClient>();
+            var MockEvent = new Mock<IPedidoEvent>();
+            var MockMapper = new Mock<IMapper>();
+
+            var Carrinho = new CarrinhoUseCase(mockPagamento.Object, mockIPedido.Object, mockRepo.Object, mockBiblioteca.Object, MockLog.Object, elasticClient, MockEvent.Object, MockMapper.Object);
             // Act
-            mockRepo.Setup(repo => repo.Listar()).Returns(new List<Domain.Models.Jogo>
+            mockRepo.Setup(repo => repo.Listar()).ReturnsAsync(new List<Domain.Models.Jogo>
             {
                 new Domain.Models.Jogo
                 {
@@ -66,15 +74,21 @@ namespace Jogos.Service.Tests
             var MockLog = new Mock<ILogger<CarrinhoUseCase>>();
             var mockRepo = new Mock<IJogo>();
             var MockServico = new Mock<ICarrinho>();
-            var mockbuceta = new Mock<ElasticClient>();
-            var Carrinho = new CarrinhoUseCase(mockPagamento.Object, mockIPedido.Object, mockRepo.Object, mockBiblioteca.Object, MockLog.Object,mockbuceta.Object);
+            var MockHttp = new Mock<HttpClient>();
+            HttpClient httpClient = new HttpClient();
+            ElasticClient elasticClient = new ElasticClient(httpClient);
+            var MockElastic = new Mock<ElasticClient>();
+            var MockEvent = new Mock<IPedidoEvent>();
+            var MockMapper = new Mock<IMapper>();
+
+            var Carrinho = new CarrinhoUseCase(mockPagamento.Object, mockIPedido.Object, mockRepo.Object, mockBiblioteca.Object, MockLog.Object, elasticClient, MockEvent.Object,MockMapper.Object);
             // Act
             ConfirmarPedidoDTO confirmarPedidoDTO = new ConfirmarPedidoDTO 
             {
                 HashPedido = Guid.NewGuid(),
                 status = 4
             };
-            mockIPedido.Setup(repo => repo.Listar()).Returns(new List<Domain.Models.PedidoJogo>
+            mockIPedido.Setup(repo => repo.Listar()).ReturnsAsync(new List<Domain.Models.PedidoJogo>
             {
                 new Domain.Models.PedidoJogo
                 {
