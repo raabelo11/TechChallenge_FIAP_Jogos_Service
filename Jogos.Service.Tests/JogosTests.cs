@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Jogos.Service.Application.Dtos;
+﻿using Jogos.Service.Application.Dtos;
 using Jogos.Service.Application.Interface;
 using Jogos.Service.Application.JogosUseCase;
 using Jogos.Service.Application.Utils;
@@ -25,11 +20,11 @@ namespace Jogos.Service.Tests
             var mockLog = new Mock<ILogger<useCaseJogos>>();
             var mockMapper = new Mock<AutoMapper.IMapper>();
             var mockRepo = new Mock<IJogo>();
-            var mockElastic = new Mock<ElasticClient>();
+            ElasticClient elasticClient = new ElasticClient(new HttpClient());
 
-            var useCaseJogos = new useCaseJogos(mockRepo.Object,mockMapper.Object, mockLog.Object,mockElastic.Object);
+            var useCaseJogos = new useCaseJogos(mockRepo.Object,mockMapper.Object, mockLog.Object, elasticClient);
             // Act
-            var response = useCaseJogos.Create(new JogoDto
+            var response = await useCaseJogos.Create(new JogoDto
             {
                 Nome = "Jogo Teste",
                 DataLancamento = DateTime.Now
@@ -46,11 +41,11 @@ namespace Jogos.Service.Tests
             var mockLog = new Mock<ILogger<useCaseJogos>>();
             var mockMapper = new Mock<AutoMapper.IMapper>();
             var mockRepo = new Mock<IJogo>();
-            var mockElastic = new Mock<ElasticClient>();
-            mockRepo.Setup(repo => repo.Adicionar(It.IsAny<Domain.Models.Jogo>())).Returns(true);
-            var useCaseJogos = new useCaseJogos(mockRepo.Object, mockMapper.Object, mockLog.Object, mockElastic.Object);
+            ElasticClient elasticClient = new ElasticClient(new HttpClient());
+            mockRepo.Setup(repo => repo.Adicionar(It.IsAny<Domain.Models.Jogo>())).ReturnsAsync(true);
+            var useCaseJogos = new useCaseJogos(mockRepo.Object, mockMapper.Object, mockLog.Object, elasticClient);
             // Act
-            var response = useCaseJogos.Create(new JogoDto
+            var response = await useCaseJogos.Create(new JogoDto
             {
                 Nome = "Jogo Teste",
                 DataLancamento = DateTime.Now,
