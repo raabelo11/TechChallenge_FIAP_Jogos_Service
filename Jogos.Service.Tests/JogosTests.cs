@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Jogos.Service.Application.Dtos;
 using Jogos.Service.Application.Interface;
 using Jogos.Service.Application.JogosUseCase;
+using Jogos.Service.Application.Utils;
 using Jogos.Service.Infrastructure.Repository;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -24,7 +25,9 @@ namespace Jogos.Service.Tests
             var mockLog = new Mock<ILogger<useCaseJogos>>();
             var mockMapper = new Mock<AutoMapper.IMapper>();
             var mockRepo = new Mock<IJogo>();
-            var useCaseJogos = new useCaseJogos(mockRepo.Object,mockMapper.Object, mockLog.Object);
+            var mockElastic = new Mock<ElasticClient>();
+
+            var useCaseJogos = new useCaseJogos(mockRepo.Object,mockMapper.Object, mockLog.Object,mockElastic.Object);
             // Act
             var response = useCaseJogos.Create(new JogoDto
             {
@@ -43,8 +46,9 @@ namespace Jogos.Service.Tests
             var mockLog = new Mock<ILogger<useCaseJogos>>();
             var mockMapper = new Mock<AutoMapper.IMapper>();
             var mockRepo = new Mock<IJogo>();
+            var mockElastic = new Mock<ElasticClient>();
             mockRepo.Setup(repo => repo.Adicionar(It.IsAny<Domain.Models.Jogo>())).Returns(true);
-            var useCaseJogos = new useCaseJogos(mockRepo.Object, mockMapper.Object, mockLog.Object);
+            var useCaseJogos = new useCaseJogos(mockRepo.Object, mockMapper.Object, mockLog.Object, mockElastic.Object);
             // Act
             var response = useCaseJogos.Create(new JogoDto
             {

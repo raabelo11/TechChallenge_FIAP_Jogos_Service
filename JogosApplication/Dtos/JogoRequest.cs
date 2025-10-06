@@ -1,6 +1,4 @@
-﻿
-
-using Jogos.Service.Domain.Enums;
+﻿using Jogos.Service.Domain.Enums;
 
 namespace Jogos.Service.Application.Dtos
 {

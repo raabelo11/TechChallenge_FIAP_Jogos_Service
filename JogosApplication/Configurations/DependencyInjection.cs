@@ -19,6 +19,7 @@ namespace Jogos.Service.Application.Configurations
             services.AddScoped<IuseCaseJogos, useCaseJogos>();
             services.AddScoped<IJogo, JogoRepository>();
             services.AddScoped<IPedidoJogo, PedidoJogoRepository>();
+            services.AddScoped<IPedidoEvent, PedidoEventRepository>();
             services.AddScoped<IBiblioteca, BibliotecaRepository>();
             services.AddScoped(typeof(IRepositoryGeneric<>), typeof(RepositoryGeneric<>));
             services.AddScoped<ICarrinho, CarrinhoUseCase>();
@@ -30,6 +31,13 @@ namespace Jogos.Service.Application.Configurations
                 var apiAddressOptions = serviceProvider.GetRequiredService<IOptions<ApiSettings>>().Value;
                 client.BaseAddress = new Uri(apiAddressOptions.BaseAddress);
             }).AddHttpMessageHandler<BearerTokenHandler>();
+            services.AddHttpClient<ElasticClient>(c =>
+            {
+                var serviceProvider = services.BuildServiceProvider();
+                var apiAddressOptions = serviceProvider.GetRequiredService<IOptions<ElasticSettings>>().Value;
+                c.BaseAddress = new Uri(apiAddressOptions.Uri);
+                c.DefaultRequestHeaders.Add("Authorization", $"ApiKey {apiAddressOptions.ApiKey}");
+            });
         }
     }
 }

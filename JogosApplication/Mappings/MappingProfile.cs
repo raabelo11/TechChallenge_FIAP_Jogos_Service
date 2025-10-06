@@ -10,6 +10,7 @@ namespace Jogos.Service.Application.Mappings
         {
             CreateMap<Jogo, JogoDto>().ReverseMap().ForMember("Id", opt => opt.Ignore());
             CreateMap<JogoRequest, Jogo>().ReverseMap();
+            CreateMap<PedidoEventDto, PedidoEvent>().ForMember("Id", opt => opt.Ignore());
         }
     }
 }

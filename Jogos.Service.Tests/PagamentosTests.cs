@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Jogos.Service.Application.Dtos;
 using Jogos.Service.Application.Interface;
 using Jogos.Service.Application.JogosUseCase;
+using Jogos.Service.Application.Utils;
 using Jogos.Service.Domain.Interface;
 using Jogos.Service.Infrastructure.Repository;
 using Microsoft.Extensions.Logging;
@@ -28,7 +29,8 @@ namespace Jogos.Service.Tests
             var MockLog = new Mock<ILogger<CarrinhoUseCase>>();
             var mockRepo = new Mock<IJogo>();
             var MockServico = new Mock<ICarrinho>();
-            var Carrinho = new CarrinhoUseCase(mockPagamento.Object, mockIPedido.Object, mockRepo.Object, mockBiblioteca.Object, MockLog.Object);
+            var MockBuceta = new Mock<ElasticClient>();
+            var Carrinho = new CarrinhoUseCase(mockPagamento.Object, mockIPedido.Object, mockRepo.Object, mockBiblioteca.Object, MockLog.Object, MockBuceta.Object);
             // Act
             mockRepo.Setup(repo => repo.Listar()).Returns(new List<Domain.Models.Jogo>
             {
@@ -64,9 +66,10 @@ namespace Jogos.Service.Tests
             var MockLog = new Mock<ILogger<CarrinhoUseCase>>();
             var mockRepo = new Mock<IJogo>();
             var MockServico = new Mock<ICarrinho>();
-            var Carrinho = new CarrinhoUseCase(mockPagamento.Object, mockIPedido.Object, mockRepo.Object, mockBiblioteca.Object, MockLog.Object);
+            var mockbuceta = new Mock<ElasticClient>();
+            var Carrinho = new CarrinhoUseCase(mockPagamento.Object, mockIPedido.Object, mockRepo.Object, mockBiblioteca.Object, MockLog.Object,mockbuceta.Object);
             // Act
-            ConfirmarPedidoDTO confirmarPedidoDTO = new ConfirmarPedidoDTO
+            ConfirmarPedidoDTO confirmarPedidoDTO = new ConfirmarPedidoDTO 
             {
                 HashPedido = Guid.NewGuid(),
                 status = 4

@@ -19,13 +19,15 @@ namespace Jogos.Service.Application.JogosUseCase
         private readonly IJogo _jogos;
         private readonly IMapper _mapper;
         private readonly ILogger<useCaseJogos> _logger;
-        public useCaseJogos(IJogo jogos, IMapper mapper, ILogger<useCaseJogos> logger)
+        private readonly ElasticClient _elasticClient;
+        public useCaseJogos(IJogo jogos, IMapper mapper, ILogger<useCaseJogos> logger, ElasticClient client)
         {
             _jogos = jogos;
             _mapper = mapper;
             _logger = logger;
+            _elasticClient = client;
         }
-        public JogosResponse Create(JogoDto request)
+        public async Task<JogosResponse> Create(JogoDto request)
         {
             try
             {
@@ -44,7 +46,7 @@ namespace Jogos.Service.Application.JogosUseCase
                 return new JogosResponse
                 {
 
-                    Ok = _jogos.Adicionar(_mapper.Map<Jogo>(request))
+                    Ok = await _jogos.Adicionar(_mapper.Map<Jogo>(request))
                 };
             }
             catch (Exception ex)
@@ -58,11 +60,11 @@ namespace Jogos.Service.Application.JogosUseCase
             }
         }
 
-        public JogosResponse listarJogos()
+        public async Task<JogosResponse> listarJogos()
         {
             try
             {
-                var jogos = _jogos.Listar();
+                var jogos = await _jogos.Listar();
                 return new JogosResponse
                 {
                     Ok = true,
@@ -80,12 +82,12 @@ namespace Jogos.Service.Application.JogosUseCase
             }
         }
 
-        public JogosResponse Update(JogoRequest request)
+        public async Task<JogosResponse> Update(JogoRequest request)
         {
             _logger.LogInformation("Localizando o jogo");
             try
             {
-                var JogoExistente = _jogos.Listar().FirstOrDefault(x => x.Id == request.Id);
+                var JogoExistente =  _jogos.Listar().Result.FirstOrDefault(x => x.Id == request.Id);
                 if (JogoExistente == null)
                 {
                     _logger.LogWarning("Jogo não encontrado");
@@ -98,7 +100,7 @@ namespace Jogos.Service.Application.JogosUseCase
                 var jogoMapeado = _mapper.Map<Jogo>(request);
                 return new JogosResponse
                 {
-                    Ok = _jogos.Atualizar(jogoMapeado)
+                    Ok = await _jogos.Atualizar(jogoMapeado)
                 };
             }
             catch (Exception ex)
@@ -112,7 +114,7 @@ namespace Jogos.Service.Application.JogosUseCase
             }
         }
 
-        public JogosResponse listarCategorias()
+        public  JogosResponse listarCategorias()
         {
             return new JogosResponse
             {
@@ -120,7 +122,7 @@ namespace Jogos.Service.Application.JogosUseCase
                 data = ListarEnum()
             };
         }
-        public JogosResponse listarEstudios()
+        public  JogosResponse listarEstudios()
         {
             return new JogosResponse
             {
@@ -153,6 +155,14 @@ namespace Jogos.Service.Application.JogosUseCase
                 index++;
             }
             return listaEstudios;
+        }
+        public async Task<JogosResponse> ListarRecomendacoes()
+        {
+            var response = await _elasticClient.ListarJogos();
+            return new JogosResponse
+            {
+                data = response
+            };
         }
     }
 }
