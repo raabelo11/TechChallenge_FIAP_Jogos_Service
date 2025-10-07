@@ -35,9 +35,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t z4lit0/jogos_service:latest .
-        env:
-          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
+        run: |
+          docker build \
+            --build-arg NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }} \
+            -t z4lit0/jogos_service:latest .
 
       - name: Push Docker image
         run: docker push z4lit0/jogos_service:latest
