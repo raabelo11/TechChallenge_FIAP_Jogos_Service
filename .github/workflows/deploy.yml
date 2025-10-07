@@ -33,6 +33,8 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t z4lit0/jogos_service:latest .
+        env:
+          NEW_RELIC_LICENSE_KEY: ${{ secrets.NEW_RELIC_LICENSE_KEY }}
 
       - name: Push Docker image
         run: docker push z4lit0/jogos_service:latest
