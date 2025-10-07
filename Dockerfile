@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y wget ca-certificates gnupg \
 && apt-get install -y 'newrelic-dotnet-agent' \
 && rm -rf /var/lib/apt/lists/*
 
+ARG NEW_RELIC_LICENSE_KEY
 # Enable the agent
 ENV CORECLR_ENABLE_PROFILING=1 \
 CORECLR_PROFILER={36032161-FFC0-4B61-B559-F6C5D41BAE5A} \
