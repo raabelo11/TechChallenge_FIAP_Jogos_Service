@@ -7,6 +7,8 @@ using Jogos.Service.Application.Utils;
 using Jogos.Service.Infrastructure.Context;
 
 using Jogos.Service.Infrastructure.HttpHandlers;
+using Jogos.Service.Infrastructure.Queue;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +30,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
+RabbitMqOptions.Load(builder.Configuration);
+builder.Services.AddMassTransactionConfig();
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
