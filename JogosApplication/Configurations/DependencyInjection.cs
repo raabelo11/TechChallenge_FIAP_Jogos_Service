@@ -4,6 +4,7 @@ using Jogos.Service.Application.JogosUseCase;
 using Jogos.Service.Application.Utils;
 using Jogos.Service.Domain.Interface;
 using Jogos.Service.Infrastructure.HttpHandlers;
+using Jogos.Service.Infrastructure.Queue;
 using Jogos.Service.Infrastructure.Repository;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -23,6 +24,7 @@ namespace Jogos.Service.Application.Configurations
             services.AddScoped<IBiblioteca, BibliotecaRepository>();
             services.AddScoped(typeof(IRepositoryGeneric<>), typeof(RepositoryGeneric<>));
             services.AddScoped<ICarrinho, CarrinhoUseCase>();
+            services.AddScoped<IRabbitMQClient, RabbitMqClient>();
             services.AddScoped<IPagamentoClient, PagamentoClient>();
 
             services.AddHttpClient<IPagamentoClient, PagamentoClient>(client =>

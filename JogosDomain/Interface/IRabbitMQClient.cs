@@ -3,8 +3,8 @@ using Jogos.Service.Domain.Models;
 
 namespace Jogos.Service.Infrastructure.Queue
 {
-    internal interface IRabbitMQClient
+    public interface IRabbitMQClient
     {
-        void FilaProcessamento(PedidoJogo pedidoJogo);
+        Task FilaProcessamento(PedidoJogo pedidoJogo);
     }
 }

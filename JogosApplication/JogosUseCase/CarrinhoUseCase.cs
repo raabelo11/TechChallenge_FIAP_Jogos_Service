@@ -10,6 +10,7 @@ using Jogos.Service.Application.Utils;
 using Jogos.Service.Domain.Enums;
 using Jogos.Service.Domain.Interface;
 using Jogos.Service.Domain.Models;
+using Jogos.Service.Infrastructure.Queue;
 using Jogos.Service.Infrastructure.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -27,7 +28,8 @@ namespace Jogos.Service.Application.JogosUseCase
         private readonly ElasticClient _elastic;
         private readonly IPedidoEvent _pedidoEvent;
         private readonly IMapper _mapper;
-        public CarrinhoUseCase(IPagamentoClient pagamentoClient, IPedidoJogo jogosRepository, IJogo jogo, IBiblioteca biblioteca,ILogger<CarrinhoUseCase> logger, ElasticClient elastic, IPedidoEvent pedidoEvent, IMapper mapper)
+        private readonly IRabbitMQClient _rabbitMQClient;
+        public CarrinhoUseCase(IPagamentoClient pagamentoClient, IPedidoJogo jogosRepository, IJogo jogo, IBiblioteca biblioteca,ILogger<CarrinhoUseCase> logger, ElasticClient elastic, IPedidoEvent pedidoEvent, IMapper mapper, IRabbitMQClient rabbitMQClient)
         {
             _pagamentoClient = pagamentoClient;
             _pedido = jogosRepository;
@@ -37,6 +39,7 @@ namespace Jogos.Service.Application.JogosUseCase
             _elastic = elastic;
             _pedidoEvent = pedidoEvent;
             _mapper = mapper;
+            _rabbitMQClient = rabbitMQClient;
         }
         public async Task <JogosResponse> Processar(ProcessamentoRequest processamentoRequest)
         {
@@ -59,6 +62,7 @@ namespace Jogos.Service.Application.JogosUseCase
                 };
                 _logger.LogInformation("Iniciando processamento do pedido. IdCliente: {IdCliente}, IdJogo: {IdJogo}", processamentoRequest.IdCliente, processamentoRequest.IdJogo);
                 var ReqPagamento = await _pagamentoClient.IncluirJogo(pedidoJogo);
+                await _rabbitMQClient.FilaProcessamento(pedidoJogo);
 
                 if (ReqPagamento.Ok)
                 {
