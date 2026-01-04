@@ -61,8 +61,8 @@ namespace Jogos.Service.Application.JogosUseCase
                     IdCliente = processamentoRequest.IdCliente
                 };
                 _logger.LogInformation("Iniciando processamento do pedido. IdCliente: {IdCliente}, IdJogo: {IdJogo}", processamentoRequest.IdCliente, processamentoRequest.IdJogo);
-                var ReqPagamento = await _pagamentoClient.IncluirJogo(pedidoJogo);
                 await _rabbitMQClient.FilaProcessamento(pedidoJogo);
+                var ReqPagamento = await _pagamentoClient.IncluirJogo(pedidoJogo);
 
                 if (ReqPagamento.Ok)
                 {
