@@ -1,9 +1,10 @@
-﻿using Jogos.Service.Domain.Models;
+﻿using Jogos.Service.Domain.Interface;
+using Jogos.Service.Domain.Models;
 using MassTransit;
 
 namespace Jogos.Service.Infrastructure.Queue
 {
-    public class RabbitMqClient : IRabbitMQClient
+    public class RabbitMqClient : IRabbitMqClient
     {
         private readonly IBus _bus;
         public RabbitMqClient(IBus bus)
@@ -12,10 +13,7 @@ namespace Jogos.Service.Infrastructure.Queue
         }
         public async Task FilaProcessamento(PedidoJogo pedidoJogo)
         {
-            var fila = new Uri("queue:carrinho");
-            var sendEndpoint = await _bus.GetSendEndpoint(fila);
-
-            await sendEndpoint.Send<PedidoJogo>(pedidoJogo);
+            await _bus.Publish(pedidoJogo);
         }
     }
 }

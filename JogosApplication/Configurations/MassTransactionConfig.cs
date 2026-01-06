@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Jogos.Service.Domain.Models;
 using Jogos.Service.Infrastructure.Queue;
 using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,8 @@ namespace Jogos.Service.Application.Configurations
                          h.Password(RabbitMqOptions.Password);
                      });
                      // Configuração de consumidores, sagas, etc., pode ser adicionada aqui
+                     cfg.Message<PedidoJogo>(m => m.SetEntityName("pedido-jogo"));  
+                     cfg.ConfigureEndpoints(context);
                  });
              });
         }
