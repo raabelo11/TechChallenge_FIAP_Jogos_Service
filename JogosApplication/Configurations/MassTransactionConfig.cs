@@ -43,6 +43,21 @@ namespace Jogos.Service.Application.Configurations
 
                     cfg.ReceiveEndpoint("biblioteca-fila", e =>
                     {
+                        // Configuração de Retry Policy
+                        // Retry imediato: 3 tentativas imediatas
+                        e.UseMessageRetry(r => r.Immediate(3));
+                        
+                        // Retry com intervalo exponencial: 5 tentativas com intervalos crescentes
+                        // Intervalos: 1s, 5s, 10s, 30s, 60s
+                        e.UseMessageRetry(r => r.Exponential(
+                            retryLimit: 5,
+                            minInterval: TimeSpan.FromSeconds(1),
+                            maxInterval: TimeSpan.FromSeconds(60),
+                            intervalDelta: TimeSpan.FromSeconds(5)));
+                        
+                        // Configuração de erro: após esgotar os retries, move para dead letter queue
+                        e.UseInMemoryOutbox();
+                        
                         e.ConfigureConsumer<RabbitMqConsumer>(context);
                     });
                     // Não é necessário ConfigureEndpoints pois não há consumidores
