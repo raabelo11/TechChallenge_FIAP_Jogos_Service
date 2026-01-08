@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Pagamentos.Service.Application.Dtos;
 using Jogos.Service.Application.Dtos;
 using Jogos.Service.Domain.Models;
 
@@ -11,6 +12,8 @@ namespace Jogos.Service.Application.Mappings
             CreateMap<Jogo, JogoDto>().ReverseMap().ForMember("Id", opt => opt.Ignore());
             CreateMap<JogoRequest, Jogo>().ReverseMap();
             CreateMap<PedidoEventDto, PedidoEvent>().ForMember("Id", opt => opt.Ignore());
+            CreateMap<PedidoJogo, BibliotecaQueue>().ReverseMap();
+            CreateMap<PedidoJogo, Biblioteca>().ForSourceMember("HashPedido", opt => opt.DoNotValidate()).ForSourceMember("Status", opt => opt.DoNotValidate());
         }
     }
-}
+} 

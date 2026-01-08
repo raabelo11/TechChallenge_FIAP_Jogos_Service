@@ -1,93 +1,3 @@
-# Jogos Service - Tech Challenge FIAP
-
-## Descrição
-Microsserviço responsável pelo gerenciamento de jogos:
-- Listagem de jogos
-- Compra de jogos
-- Recomendação baseada no histórico do usuário
-- Integração com Elasticsearch para busca avançada e métricas
-
-## Funcionalidades
-- CRUD de jogos
-- Busca e filtros avançados
-- Agregações para métricas (mais populares, recentes)
-- Event sourcing para rastrear alterações
-
-## Tecnologias
-- .NET 8
-- Entity Framework Core
-- SQL Server
-- Elasticsearch
-- Serilog
-- Docker (opcional)
-
-## Estrutura
-- `Jogos.Service.Domain` → Entidades e regras de negócio
-- `Jogos.Service.Infrastructure` → Repositórios, contextos e integração com Elasticsearch
-- `Jogos.Service.Application` → Casos de uso
-- `Jogos.ApiService` → API REST
-
-## Configuração
-
-### Variáveis de Ambiente
-
-O projeto utiliza arquivos `.env` para configuração de variáveis de ambiente, especialmente para o Docker Compose e serviços externos.
-
-#### Configuração Inicial
-
-1. **Copie o arquivo de exemplo**:
-   ```bash
-   # Windows (PowerShell)
-   Copy-Item .env.example .env
-   
-   # Linux/Mac
-   cp .env.example .env
-   ```
-
-2. **Edite o arquivo `.env`** com suas configurações locais. O arquivo contém:
-   - **RabbitMQ**: Configurações para o broker de mensageria (usado pelo Docker Compose)
-   - **Database**: Connection string do banco de dados (opcional, pode ser configurado no appsettings.json)
-   - **API Settings**: Endereços base das APIs (opcional)
-   - **Elasticsearch**: Credenciais para busca avançada (opcional)
-
-3. **Importante**: 
-   - O arquivo `.env` **não deve ser commitado** no repositório (já está no `.gitignore`)
-   - Use o `.env.example` como referência para as variáveis disponíveis
-   - As variáveis do `.env` são carregadas automaticamente pelo Docker Compose
-
-#### Variáveis Principais
-
-| Variável | Descrição | Padrão |
-|----------|-----------|--------|
-| `RABBITMQ_HOST` | Hostname do RabbitMQ | `rabbitmq` |
-| `RABBITMQ_PORT_AMQP` | Porta AMQP | `5672` |
-| `RABBITMQ_PORT_MANAGEMENT` | Porta da interface web | `15672` |
-| `RABBITMQ_DEFAULT_USER` | Usuário do RabbitMQ | `guest` |
-| `RABBITMQ_DEFAULT_PASS` | Senha do RabbitMQ | `guest` |
-| `RABBITMQ_CONTAINER_NAME` | Nome do container Docker | `rabbitmq-jogos` |
-
-### Configurações no appsettings.json
-
-Configurações no `appsettings.Development.json`:
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=JogosDB;Trusted_Connection=True;"
-  },
-  "Elasticsearch": {
-    "Url": "http://localhost:9200",
-    "IndexName": "jogos"
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  }
-}
-
-```
-
 # Documentação de Mensageria - Sistema de Jogos e Pagamentos
 
 ## 📋 Índice
@@ -154,39 +64,6 @@ O sistema utiliza **RabbitMQ** como broker de mensageria para comunicação ass�
                   └─────────────┘
 ```
 
-## 🏗️ Arquitetura do fluxo do Kubernetes
-```
-                    +-----------------+
-                    |     Usuários     |
-                    |  (Clientes/Front)|
-                    +--------+--------+
-                             |
-                             v
-                    +-----------------+
-                    | LoadBalancer AWS|
-                    +--------+--------+
-                             |
-        ------------------------------------------------
-        |                      |                      |
-        v                      v                      v
-    AWS- EKS                AWS- EKS                AWS- EKS
-+---------------+       +---------------+       +---------------+
-| Usuarios.svc  |       | Jogos.svc     |       | Pagamentos.svc|
-| (Deployment)  |       | (Deployment)  |       | (Deployment)  |
-| 1 - 3 Pods    |       | 1 - 3 Pods    |       | 1 - 3 Pods    |
-+-------+-------+       +-------+-------+       +-------+-------+
-        |                       |                       |
-        v                       v                       v
-  +-----------+           +-----------+           +-----------+
-  |  Pod(s)   |           |  Pod(s)   |           |  Pod(s)   |
-  | Usuarios  |           | Jogos     |           | Pagamentos|
-  +-----------+           +-----------+           +-----------+
-        |                       |                       |
-        v                       v                       v
-   Banco de Dados          Banco de Dados          Banco de Dados
-   Independente            Independente            Independente
-
-```
 ---
 
 ## 📬 Filas e Exchanges
@@ -449,3 +326,135 @@ Ambos os serviços registram logs importantes:
 4. **HashPedido**: Identificador único (GUID) usado para correlacionar mensagens entre os serviços.
 
 5. **Sincronização**: O serviço de Jogos mantém seu próprio estado de pedidos, e o serviço de Pagamentos também mantém seu estado. A mensageria sincroniza essas informações.
+
+---
+
+## 🔄 Retry Policy (Política de Retry)
+
+O sistema implementa políticas de retry para garantir que mensagens com falha temporária sejam reprocessadas automaticamente.
+
+### Configuração Atual
+
+Ambos os serviços estão configurados com duas estratégias de retry combinadas:
+
+1. **Retry Imediato**: 3 tentativas imediatas para erros transitórios rápidos
+2. **Retry Exponencial**: 5 tentativas com intervalos crescentes (1s, 5s, 10s, 30s, 60s)
+
+### Como Funciona
+
+Quando uma mensagem falha durante o processamento:
+
+1. **Primeira tentativa**: Processamento normal
+2. **Retries imediatos**: 3 tentativas sem espera (útil para erros de conexão rápida)
+3. **Retries exponenciais**: 5 tentativas com intervalos crescentes:
+   - 1ª tentativa: após 1 segundo
+   - 2ª tentativa: após 5 segundos
+   - 3ª tentativa: após 10 segundos
+   - 4ª tentativa: após 30 segundos
+   - 5ª tentativa: após 60 segundos
+
+**Total**: Até 9 tentativas (1 inicial + 3 imediatas + 5 exponenciais)
+
+### Tipos de Retry Disponíveis
+
+#### 1. Retry Imediato
+```csharp
+e.UseMessageRetry(r => r.Immediate(3));
+```
+- Útil para: Erros transitórios que podem ser resolvidos rapidamente
+- Exemplo: Timeout de conexão, deadlock temporário
+
+#### 2. Retry com Intervalo Fixo
+```csharp
+e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(10)));
+```
+- Útil para: Erros que precisam de tempo fixo para se resolver
+- Exemplo: Serviço externo temporariamente indisponível
+
+#### 3. Retry Exponencial (Atual)
+```csharp
+e.UseMessageRetry(r => r.Exponential(
+    retryLimit: 5,
+    minInterval: TimeSpan.FromSeconds(1),
+    maxInterval: TimeSpan.FromSeconds(60),
+    intervalDelta: TimeSpan.FromSeconds(5)));
+```
+- Útil para: Erros que podem levar tempo variável para se resolver
+- Exemplo: Sobrecarga de banco de dados, problemas de rede
+
+#### 4. Retry com Filtro de Exceções
+```csharp
+e.UseMessageRetry(r => r.Exponential(5, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(5))
+    .Handle<SqlException>()
+    .Ignore<ArgumentException>());
+```
+- Útil para: Aplicar retry apenas para exceções específicas
+- Ignora exceções que não devem ser retentadas (ex: validação)
+
+### Customizando Retry por Consumer
+
+Você pode configurar retry específico para cada consumer:
+
+```csharp
+cfg.ReceiveEndpoint("biblioteca-fila", e =>
+{
+    // Retry específico para este endpoint
+    e.UseMessageRetry(r => r.Exponential(5, 
+        TimeSpan.FromSeconds(1), 
+        TimeSpan.FromSeconds(60), 
+        TimeSpan.FromSeconds(5)));
+    
+    e.ConfigureConsumer<RabbitMqConsumer>(context);
+});
+```
+
+### Dead Letter Queue (DLQ)
+
+Após esgotar todas as tentativas de retry, a mensagem pode ser movida para uma Dead Letter Queue. Para configurar:
+
+```csharp
+cfg.ReceiveEndpoint("biblioteca-fila", e =>
+{
+    e.UseMessageRetry(r => r.Exponential(5, 
+        TimeSpan.FromSeconds(1), 
+        TimeSpan.FromSeconds(60), 
+        TimeSpan.FromSeconds(5)));
+    
+    // Configura DLQ para mensagens que falharam após todos os retries
+    e.PublishFaults = true;
+    
+    e.ConfigureConsumer<RabbitMqConsumer>(context);
+});
+```
+
+### Monitoramento de Retries
+
+Os retries são automaticamente logados pelo MassTransit. Você verá logs como:
+
+```
+[WARN] Retry attempt 1 of 5 for message {MessageId}
+[WARN] Retry attempt 2 of 5 for message {MessageId}
+[ERROR] Message failed after all retry attempts: {MessageId}
+```
+
+### Boas Práticas
+
+1. **Idempotência**: Garanta que suas operações sejam idempotentes, pois serão executadas múltiplas vezes
+2. **Logging**: Sempre logue tentativas de retry para facilitar debugging
+3. **Timeouts**: Configure timeouts apropriados para evitar retries desnecessários
+4. **Dead Letter Queue**: Configure DLQ para mensagens que falharam permanentemente
+5. **Métricas**: Monitore a taxa de retry para identificar problemas sistêmicos
+
+---
+
+## 🚀 Próximos Passos
+
+- [x] Implementar retry policy no MassTransit
+- [ ] Adicionar dead letter queue para mensagens com falha
+- [ ] Implementar circuit breaker para resiliência
+- [ ] Adicionar métricas e monitoramento avançado
+- [ ] Implementar versionamento de mensagens
+
+---
+
+**Última atualização**: Dezembro 2024
