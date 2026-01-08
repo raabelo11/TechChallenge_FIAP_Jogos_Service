@@ -123,15 +123,15 @@ O sistema utiliza **RabbitMQ** como broker de mensageria para comunicação ass�
                              |
                              v
                     +-----------------+
-                    |   Ingress / LB  |
-                    |  (Load Balancer)|
+                    | LoadBalancer AWS|
                     +--------+--------+
                              |
         ------------------------------------------------
         |                      |                      |
         v                      v                      v
+    AWS- EKS                AWS- EKS                AWS- EKS
 +---------------+       +---------------+       +---------------+
-| usuarios.svc  |       | jogos.svc     |       | pagamentos.svc|
+| Usuarios.svc  |       | Jogos.svc     |       | Pagamentos.svc|
 | (Deployment)  |       | (Deployment)  |       | (Deployment)  |
 | 1 - 3 Pods    |       | 1 - 3 Pods    |       | 1 - 3 Pods    |
 +-------+-------+       +-------+-------+       +-------+-------+
@@ -139,12 +139,12 @@ O sistema utiliza **RabbitMQ** como broker de mensageria para comunicação ass�
         v                       v                       v
   +-----------+           +-----------+           +-----------+
   |  Pod(s)   |           |  Pod(s)   |           |  Pod(s)   |
-  | usuarios  |           | jogos     |           | pagamentos|
+  | Usuarios  |           | Jogos     |           | Pagamentos|
   +-----------+           +-----------+           +-----------+
         |                       |                       |
         v                       v                       v
    Banco de Dados          Banco de Dados          Banco de Dados
-   (ou outro serviço)      (ou outro serviço)      (ou outro serviço)
+   Independente            Independente            Independente
 
 ```
 ---
