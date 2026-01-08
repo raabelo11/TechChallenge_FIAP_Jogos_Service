@@ -5,6 +5,7 @@
         public bool Ok { get; set; }
         public Object? data { get; set; }
         public string[]? Errors { get; set; }
+        public string? Message { get; set; }
 
     }
 }

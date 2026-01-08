@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: ${RABBITMQ_CONTAINER_NAME}
+    hostname: ${RABBITMQ_HOSTNAME}
+    ports:
+      - "${RABBITMQ_PORT_AMQP}:5672"      # Porta AMQP
+      - "${RABBITMQ_PORT_MANAGEMENT}:15672"    # Porta Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - jogos-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  rabbitmq_data:
+    driver: local
+
+networks:
+  jogos-network:
+    driver: bridge

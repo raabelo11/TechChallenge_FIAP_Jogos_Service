@@ -31,7 +31,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddApplication();
 RabbitMqOptions.Load(builder.Configuration);
-builder.Services.AddMassTransactionConfig();
+builder.Services.AddMassTransactionConfig();    
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();

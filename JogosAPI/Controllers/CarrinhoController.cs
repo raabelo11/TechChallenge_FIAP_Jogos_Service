@@ -21,17 +21,17 @@ namespace Jogos.ApiService.Controllers
             {
                 processamentoRequest.IdCliente = userId;
                 var adicionarCarrinho = await _carrinho.Processar(processamentoRequest);
-                return Ok(adicionarCarrinho.Ok);
+                return Ok(adicionarCarrinho.Message);
             }
             return Unauthorized();
         }
-        [HttpPost("ConfirmarPedido")]
+        [HttpPost("StatusPedido")]
         public async Task<ActionResult<bool>> ConfirmarPedido([FromBody] ConfirmarPedidoDTO confirmarPedidoDTO)
         {
             if (HttpContext.Items.TryGetValue("UserId", out var userIdObj) && userIdObj is int userId)
             {
-                var atualizarPedido = await _carrinho.Confirmar(confirmarPedidoDTO);
-                return Ok(atualizarPedido.Ok);
+                var atualizarPedido = await _carrinho.VerificarStatusPedido(confirmarPedidoDTO);
+                return Ok(atualizarPedido.data);
             }
 
             return Unauthorized();

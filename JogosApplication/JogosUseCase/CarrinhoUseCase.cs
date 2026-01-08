@@ -11,6 +11,7 @@ using Jogos.Service.Domain.Enums;
 using Jogos.Service.Domain.Interface;
 using Jogos.Service.Domain.Models;
 using Jogos.Service.Infrastructure.Queue;
+using Jogos.Service.Infrastructure.Queue.ModelQueue;
 using Jogos.Service.Infrastructure.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -28,8 +29,8 @@ namespace Jogos.Service.Application.JogosUseCase
         private readonly ElasticClient _elastic;
         private readonly IPedidoEvent _pedidoEvent;
         private readonly IMapper _mapper;
-        private readonly IRabbitMQClient _rabbitMQClient;
-        public CarrinhoUseCase(IPagamentoClient pagamentoClient, IPedidoJogo jogosRepository, IJogo jogo, IBiblioteca biblioteca,ILogger<CarrinhoUseCase> logger, ElasticClient elastic, IPedidoEvent pedidoEvent, IMapper mapper, IRabbitMQClient rabbitMQClient)
+        private readonly IRabbitMqClient _rabbitMQClient;
+        public CarrinhoUseCase(IPagamentoClient pagamentoClient, IPedidoJogo jogosRepository, IJogo jogo, IBiblioteca biblioteca,ILogger<CarrinhoUseCase> logger, ElasticClient elastic, IPedidoEvent pedidoEvent, IMapper mapper, IRabbitMqClient rabbitMQClient, IPedidoJogo pedidoJogo)
         {
             _pagamentoClient = pagamentoClient;
             _pedido = jogosRepository;
@@ -61,30 +62,17 @@ namespace Jogos.Service.Application.JogosUseCase
                     IdCliente = processamentoRequest.IdCliente
                 };
                 _logger.LogInformation("Iniciando processamento do pedido. IdCliente: {IdCliente}, IdJogo: {IdJogo}", processamentoRequest.IdCliente, processamentoRequest.IdJogo);
+                await _pedido.Adicionar(pedidoJogo);
                 await _rabbitMQClient.FilaProcessamento(pedidoJogo);
-                var ReqPagamento = await _pagamentoClient.IncluirJogo(pedidoJogo);
-
-                if (ReqPagamento.Ok)
-                {
-
-                    _logger.LogInformation("Pedido processado com sucesso. IdCliente: {IdCliente}, IdJogo: {IdJogo}", processamentoRequest.IdCliente, processamentoRequest.IdJogo);
-                    PedidoEventDto pedidoEvent = new PedidoEventDto();
-                    pedidoEvent.DataEvento = DateTime.UtcNow;
-                    pedidoEvent.HashPedido = pedidoJogo.HashPedido;
-                    pedidoEvent.EstadoPedido = $"O Pedido foi salvo com o seguinte status: {pedidoJogo.Status.ToString()}";
-                    var PedidoMap = _mapper.Map<PedidoEvent>(pedidoEvent);
-                    await _pedidoEvent.Adicionar(PedidoMap);
-
-                    await _pedido.Adicionar(pedidoJogo);
-                    await _elastic.SalvarJogo(jogo.Nome, jogo.Id);
-                    await _elastic.salvarPreferencia(((int)jogo.Estudio), processamentoRequest.IdCliente);
-                    return ReqPagamento;
-                }
-                _logger.LogInformation("Erro ao processar pedido. IdCliente: {IdCliente}, IdJogo: {IdJogo}", processamentoRequest.IdCliente, processamentoRequest.IdJogo);
+                await RegistrarEvento(pedidoJogo);
+                await _elastic.SalvarJogo(jogo.Nome, jogo.Id);
+                await _elastic.salvarPreferencia(((int)jogo.Estudio), processamentoRequest.IdCliente);
                 return new JogosResponse
                 {
                  
-                    Errors = new string[] { "Erro ao processar pedido" }
+                    Ok = true,
+                    Message = $"Pedido Criado com a seguinte hash {pedidoJogo.HashPedido}"
+
                 };
 
             }
@@ -98,49 +86,25 @@ namespace Jogos.Service.Application.JogosUseCase
 
             }
         }
-        public async Task<JogosResponse> Confirmar(ConfirmarPedidoDTO confirmarPedidoDTO)
+        public async Task<JogosResponse> VerificarStatusPedido(ConfirmarPedidoDTO confirmarPedidoDTO)
         {
-            _logger.LogInformation("Iniciando confirmação do pedido. HashPedido: {HashPedido}, Status: {Status}", confirmarPedidoDTO.HashPedido, confirmarPedidoDTO.status);
-            var validateStatus = Enum.IsDefined(typeof(StatusProcessamento), confirmarPedidoDTO.status);
-            var pedido = _pedido.Listar().Result.Find(x => x.HashPedido == confirmarPedidoDTO.HashPedido);
-
-            if (validateStatus is false || pedido is null)
+            var lista = await _pedido.Listar();
+            var pedido =  lista.Find(x => x.HashPedido == confirmarPedidoDTO.HashPedido);
+            if (pedido is null)
             {
-                _logger.LogWarning("Hash ou status não localizado. HashPedido: {HashPedido}, Status: {Status}", confirmarPedidoDTO.HashPedido, confirmarPedidoDTO.status);
+                _logger.LogWarning("Pedido não localizado. HashPedido: {HashPedido}", confirmarPedidoDTO.HashPedido);
                 return new JogosResponse
                 {
-                    Errors = new string[] { "Hash ou status não localizado" },
-                    Ok = false
+                    Errors = new string[] { "Pedido não foi possível localizar" }
                 };
-            }
-            PedidoEventDto pedidoEvent = new PedidoEventDto();
-            pedidoEvent.DataEvento = DateTime.UtcNow;
-            pedidoEvent.HashPedido = confirmarPedidoDTO.HashPedido;
-            pedidoEvent.EstadoPedido = $"O Pedido foi alterado para o seguinte status: {confirmarPedidoDTO.status.ToString()}";
-            var PedidoMap = _mapper.Map<PedidoEvent>(pedidoEvent);
-            await _pedidoEvent.Adicionar(PedidoMap);
-            switch (confirmarPedidoDTO.status)
-            {   
-
-                case 2:
-                    pedido.Status = StatusProcessamento.Aprovado;
-                    await _pedido.Atualizar(pedido);
-                    Biblioteca biblioteca = new Biblioteca();
-                    biblioteca.IdJogo = pedido.IdJogo;
-                    biblioteca.IdCliente = pedido.IdCliente;
-                    _logger.LogInformation("Pedido aprovado e jogo adicionado à biblioteca. IdCliente: {IdCliente}, IdJogo: {IdJogo}", pedido.IdCliente, pedido.IdJogo);
-                    await _biblioteca.Adicionar(biblioteca);
-                    break;
-                case 3:
-                    _logger.LogInformation("Pedido cancelado. HashPedido: {HashPedido}", confirmarPedidoDTO.HashPedido);
-                    pedido.Status = StatusProcessamento.Cancelado;
-                    await _pedido.Atualizar(pedido);
-                    break;
             }
             return new JogosResponse
             {
                 Ok = true,
-                data = pedido
+                data = new
+                {
+                    status = pedido.Status.ToString()
+                }
             };
         }
 
@@ -171,6 +135,15 @@ namespace Jogos.Service.Application.JogosUseCase
                 Ok = true,
                 data = jogos
             };
+        }
+        private async Task RegistrarEvento(PedidoJogo pedido)
+        {
+            PedidoEventDto pedidoEvent = new PedidoEventDto();
+            pedidoEvent.DataEvento = DateTime.UtcNow;
+            pedidoEvent.HashPedido = pedido.HashPedido;
+            pedidoEvent.EstadoPedido = $"O Pedido foi salvo com o seguinte status: {pedido.Status.ToString()}";
+            var PedidoMap = _mapper.Map<PedidoEvent>(pedidoEvent);
+            await _pedidoEvent.Adicionar(PedidoMap);
         }
     }
 }

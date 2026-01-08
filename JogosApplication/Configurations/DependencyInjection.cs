@@ -22,9 +22,11 @@ namespace Jogos.Service.Application.Configurations
             services.AddScoped<IPedidoJogo, PedidoJogoRepository>();
             services.AddScoped<IPedidoEvent, PedidoEventRepository>();
             services.AddScoped<IBiblioteca, BibliotecaRepository>();
+            services.AddScoped<IBibliotecaUseCase, BibliotecaUseCase>();
+
             services.AddScoped(typeof(IRepositoryGeneric<>), typeof(RepositoryGeneric<>));
             services.AddScoped<ICarrinho, CarrinhoUseCase>();
-            services.AddScoped<IRabbitMQClient, RabbitMqClient>();
+            services.AddScoped<IRabbitMqClient, RabbitMqClient>();
             services.AddScoped<IPagamentoClient, PagamentoClient>();
 
             services.AddHttpClient<IPagamentoClient, PagamentoClient>(client =>
