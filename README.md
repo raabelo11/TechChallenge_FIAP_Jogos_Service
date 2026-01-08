@@ -114,6 +114,39 @@ O sistema utiliza **RabbitMQ** como broker de mensageria para comunicação ass�
                   └─────────────┘
 ```
 
+## 🏗️ Arquitetura do fluxo do Kubernetes
+```
+                    +-----------------+
+                    |     Usuários     |
+                    |  (Clientes/Front)|
+                    +--------+--------+
+                             |
+                             v
+                    +-----------------+
+                    |   Ingress / LB  |
+                    |  (Load Balancer)|
+                    +--------+--------+
+                             |
+        ------------------------------------------------
+        |                      |                      |
+        v                      v                      v
++---------------+       +---------------+       +---------------+
+| usuarios.svc  |       | jogos.svc     |       | pagamentos.svc|
+| (Deployment)  |       | (Deployment)  |       | (Deployment)  |
+| 1 - 3 Pods    |       | 1 - 3 Pods    |       | 1 - 3 Pods    |
++-------+-------+       +-------+-------+       +-------+-------+
+        |                       |                       |
+        v                       v                       v
+  +-----------+           +-----------+           +-----------+
+  |  Pod(s)   |           |  Pod(s)   |           |  Pod(s)   |
+  | usuarios  |           | jogos     |           | pagamentos|
+  +-----------+           +-----------+           +-----------+
+        |                       |                       |
+        v                       v                       v
+   Banco de Dados          Banco de Dados          Banco de Dados
+   (ou outro serviço)      (ou outro serviço)      (ou outro serviço)
+
+```
 ---
 
 ## 📬 Filas e Exchanges
