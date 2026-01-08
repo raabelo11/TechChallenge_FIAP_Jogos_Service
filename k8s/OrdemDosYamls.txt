@@ -1,0 +1,21 @@
+Ordem de aplicação recomendada
+
+ConfigMap e Secret primeiro:
+
+kubectl apply -f configmap.yaml
+kubectl apply -f secret.yaml
+
+Depois os Deployments + Services + HPAs:
+
+kubectl apply -f jogos-deployment.yaml
+kubectl apply -f pagamentos-deployment.yaml
+kubectl apply -f usuarios-deployment.yaml
+
+Testar pods, serviços internos e logs:
+
+kubectl get pods
+kubectl get services
+kubectl logs <nome-do-pod>
+kubectl exec -it <nome-do-pod> -- curl localhost:80
+kubectl get hpa
+kubectl top pods

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  JOGOS_ENV: "prod"
+  PAGAMENTOS_ENV: "prod"
+  USUARIOS_ENV: "prod"
