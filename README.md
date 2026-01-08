@@ -46,186 +46,10 @@ Configurações no `appsettings.Development.json`:
   }
 }
 
-## Mensageria
+```
+
 # Documentação de Mensageria - Sistema de Jogos e Pagamentos
 
-## 📋 Índice
-
-1. [Visão Geral](#visão-geral)
-2. [Arquitetura de Mensageria](#arquitetura-de-mensageria)
-3. [Filas e Exchanges](#filas-e-exchanges)
-4. [Fluxo de Comunicação](#fluxo-de-comunicação)
-5. [Modelos de Mensagem](#modelos-de-mensagem)
-6. [Configuração](#configuração)
-7. [Tecnologias Utilizadas](#tecnologias-utilizadas)
-
----
-
-## 🎯 Visão Geral
-
-O sistema utiliza **RabbitMQ** como broker de mensageria para comunicação assíncrona entre os microsserviços de **Jogos** e **Pagamentos**. A comunicação é implementada através do framework **MassTransit**, que abstrai a complexidade do RabbitMQ e fornece recursos avançados de mensageria.
-
-### Objetivos da Mensageria
-
-- **Desacoplamento**: Os serviços não precisam conhecer diretamente uns aos outros
-- **Assíncronia**: Operações que não precisam de resposta imediata são processadas de forma assíncrona
-- **Confiabilidade**: Garantia de entrega de mensagens mesmo em caso de falhas temporárias
-- **Escalabilidade**: Possibilidade de processar múltiplas mensagens em paralelo
-
----
-
-## 📬 Filas e Exchanges
-
-O sistema utiliza duas filas principais para comunicação entre os serviços:
-
-### 1. Fila: `pedido-jogo`
-
-**Propósito**: Comunicação do serviço de Jogos para o serviço de Pagamentos
-
-- **Publisher**: Serviço de Jogos (`CarrinhoUseCase`)
-- **Consumer**: Serviço de Pagamentos (`RabbitMqConsumer`)
-- **Mensagem**: `PedidoJogoQueue`
-- **Quando é publicada**: Quando um cliente adiciona um jogo ao carrinho e cria um pedido
-
-### 2. Fila: `biblioteca-fila`
-
-**Propósito**: Comunicação do serviço de Pagamentos para o serviço de Jogos
-
-- **Publisher**: Serviço de Pagamentos (`PagamentoUseCase`)
-- **Consumer**: Serviço de Jogos (`RabbitMqConsumer`)
-- **Mensagem**: `BibliotecaQueue`
-- **Quando é publicada**: Quando um pedido é aprovado ou cancelado no serviço de Pagamentos
-
----
-
-## 🔄 Fluxo de Comunicação
-
-### Fluxo 1: Criação de Pedido (Jogos → Pagamentos)
-
-```
-1. Cliente solicita criação de pedido
-   ↓
-2. CarrinhoUseCase.Processar() é chamado
-   ↓
-3. Pedido é salvo no banco de dados do serviço de Jogos
-   ↓
-4. Mensagem PedidoJogoQueue é publicada na fila "pedido-jogo"
-   ↓
-5. Serviço de Pagamentos consome a mensagem
-   ↓
-6. ProcessamentoUseCase.ProcessarPedido() processa o pedido
-   ↓
-7. Pedido é salvo no banco de dados do serviço de Pagamentos com status "Pendente"
-```
-
-**Código relevante:**
-- **Publisher**: `JogosApplication/JogosUseCase/CarrinhoUseCase.cs` (linha 66)
-- **Consumer**: `Pagamentos.Services.Application/Consumer/RabbitMqConsumer.cs`
-
-### Fluxo 2: Atualização de Status (Pagamentos → Jogos)
-
-```
-1. Pedido é aprovado/cancelado no serviço de Pagamentos
-   ↓
-2. PagamentoUseCase.AtualizarPedido() é chamado
-   ↓
-3. Status do pedido é atualizado no banco de dados do serviço de Pagamentos
-   ↓
-4. Mensagem BibliotecaQueue é publicada na fila "biblioteca-fila"
-   ↓
-5. Serviço de Jogos consome a mensagem
-   ↓
-6. BibliotecaUseCase.SalvarJogoBiblioteca() processa a mensagem
-   ↓
-7. Se status = Aprovado (2):
-   - Status do pedido é atualizado para "Aprovado"
-   - Jogo é adicionado à biblioteca do cliente
-8. Se status = Cancelado (3):
-   - Status do pedido é atualizado para "Cancelado"
-```
-
-**Código relevante:**
-- **Publisher**: `Pagamentos.Services.Application/UseCase/PagamentoUseCase.cs` (linha 49)
-- **Consumer**: `JogosApplication/Consumer/RabbitMqConsumer.cs`
-
----
-
-## 📦 Modelos de Mensagem
-
-### PedidoJogoQueue
-
-**Namespace**: `Jogos.Service.Infrastructure.Queue.ModelQueue`
-
-**Fila**: `pedido-jogo`
-
-**Estrutura**:
-```csharp
-[EntityName("pedido-jogo")]
-public class PedidoJogoQueue
-{
-    public Guid HashPedido { get; set; }      // Identificador único do pedido
-    public int IdJogo { get; set; }            // ID do jogo
-    public int IdCliente { get; set; }         // ID do cliente
-    public int Status { get; set; }            // Status: 1=Pendente, 2=Aprovado, 3=Cancelado
-}
-```
-
-**Quando é usada**: 
-- Publicada pelo serviço de Jogos quando um pedido é criado
-- Consumida pelo serviço de Pagamentos para criar o registro de pedido
-
-### BibliotecaQueue
-
-**Namespace**: `Pagamentos.Service.Application.Dtos` (no serviço de Pagamentos)
-**Namespace**: `Jogos.Service.Application.Consumer.ModelConsumer` (no serviço de Jogos)
-
-**Fila**: `biblioteca-fila`
-
-**Estrutura**:
-```csharp
-[EntityName("biblioteca-fila")]
-public class BibliotecaQueue
-{
-    public Guid HashPedido { get; set; }      // Identificador único do pedido
-    public int status { get; set; }            // Status: 2=Aprovado, 3=Cancelado
-}
-```
-
-**Quando é usada**:
-- Publicada pelo serviço de Pagamentos quando um pedido é aprovado ou cancelado
-- Consumida pelo serviço de Jogos para atualizar o status e adicionar à biblioteca
-
----
-
-## ⚙️ Configuração
-
-### 1. Configuração do RabbitMQ
-
-As configurações do RabbitMQ estão nos arquivos `appsettings.json` de cada serviço:
-
-**Serviço de Jogos** (`JogosAPI/appsettings.json`):
-```json
-{
-  "RabbitMq": {
-    "Host": "amqp://localhost:5672",
-    "UserName": "guest",
-    "Password": "guest"
-  }
-}
-```
-
-**Serviço de Pagamentos** (`Pagamento.ApiService/appsettings.json`):
-```json
-{
-  "RabbitMq": {
-    "Host": "amqp://localhost:5672",
-    "UserName": "guest",
-    "Password": "guest"
-  }
-}
-```
-
-## Mensageria
 ## 📋 Índice
 
 1. [Visão Geral](#visão-geral)
@@ -494,3 +318,61 @@ RABBITMQ_DEFAULT_PASS=guest
 - **Versão**: 3-management (imagem Docker)
 - **Protocolo**: AMQP 0-9-1
 - **Função**: Broker de mensageria
+
+### MassTransit
+- **Versão**: 8.5.7
+- **Função**: Framework de mensageria que abstrai o RabbitMQ
+- **Recursos utilizados**:
+  - Publishers (publicação de mensagens)
+  - Consumers (consumo de mensagens)
+  - EntityName (nomenclatura de filas)
+  - ReceiveEndpoint (configuração de endpoints)
+
+### RabbitMQ.Client
+- **Versão**: 7.2.0
+- **Função**: Cliente .NET para RabbitMQ (usado internamente pelo MassTransit)
+
+---
+
+## 🔍 Monitoramento e Debugging
+
+### Interface de Gerenciamento do RabbitMQ
+
+Acesse `http://localhost:15672` para:
+- Visualizar filas e mensagens
+- Monitorar conexões e canais
+- Ver estatísticas de mensagens
+- Gerenciar exchanges e bindings
+
+### Logs
+
+Ambos os serviços registram logs importantes:
+- Publicação de mensagens
+- Recebimento de mensagens
+- Processamento de mensagens
+- Erros durante o processamento
+
+**Exemplo de logs**:
+```
+[INFO] Mensagem publicada na fila RabbitMQ para o pedido {HashPedido}
+[INFO] Mensagem recebida para processamento de pedido. HashPedido: {HashPedido}
+[INFO] Pedido processado e salvo com sucesso. HashPedido: {HashPedido}
+[ERROR] Erro ao processar mensagem do RabbitMQ. HashPedido: {HashPedido}
+```
+
+---
+
+## 📝 Observações Importantes
+
+1. **Idempotência**: As operações devem ser idempotentes, pois uma mensagem pode ser processada múltiplas vezes em caso de retry.
+
+2. **Tratamento de Erros**: Erros durante o processamento são logados e a exceção é relançada para que o MassTransit possa fazer retry se configurado.
+
+3. **Status do Pedido**: 
+   - `1` = Pendente
+   - `2` = Aprovado
+   - `3` = Cancelado
+
+4. **HashPedido**: Identificador único (GUID) usado para correlacionar mensagens entre os serviços.
+
+5. **Sincronização**: O serviço de Jogos mantém seu próprio estado de pedidos, e o serviço de Pagamentos também mantém seu estado. A mensageria sincroniza essas informações.
